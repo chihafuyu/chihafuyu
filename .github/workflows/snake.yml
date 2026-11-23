@@ -3,13 +3,18 @@ name: 🐍 Generate Snake Animation
 
 "on":
   schedule:
-    - cron: "0 */24 * * *"
+    # Daily at 02:17 UTC; avoids the busiest top-of-the-hour slot.
+    - cron: "17 2 * * *"
   workflow_dispatch:
   push:
     branches:
       - main
 
 permissions: {}
+
+concurrency:
+  group: snake
+  cancel-in-progress: true
 
 jobs:
   generate:
@@ -19,7 +24,7 @@ jobs:
       contents: write
     steps:
       - name: Generate Snake Game from GitHub Contribution Grid
-        uses: Platane/snk@v3
+        uses: Platane/snk@d8f6715049803e982ee5ff501b6b9b7d5deeb09b # v3.5.0
         with:
           github_user_name: ${{ github.repository_owner }}
           outputs: |
@@ -29,7 +34,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push to output branch
-        uses: crazy-max/ghaction-github-pages@v5
+        uses: crazy-max/ghaction-github-pages@1d6ee9b181a81033a16bd707a1401afa978daab4 # v5.0.0
         with:
           target_branch: output
           build_dir: dist
